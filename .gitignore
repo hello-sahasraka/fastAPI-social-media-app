@@ -1,0 +1,36 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Environment variables / secrets
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Model files (large binaries)
+*.keras
+*.h5
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+
+# Requirements lock files (if auto-generated)
+pip-wheel-metadata/
