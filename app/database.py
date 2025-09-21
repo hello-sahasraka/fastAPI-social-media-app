@@ -1,10 +1,12 @@
-import databases
+# database.py
+
+from app.config import config
 import sqlalchemy
-from config import config
+import databases
 
 metadata = sqlalchemy.MetaData()
 
-
+# Example tables
 post_table = sqlalchemy.Table(
     "posts",
     metadata,
@@ -20,12 +22,16 @@ comment_table = sqlalchemy.Table(
     sqlalchemy.Column("post_id", sqlalchemy.ForeignKey("posts.id")),
 )
 
+# If SQLite async, use a sync URL for table creation
+sync_url = config.DATABASE_URL.replace("sqlite+aiosqlite", "sqlite")
+
 engine = sqlalchemy.create_engine(
-    config.DATABASE_URL, connect_args={"check_same_thread": False}
+    sync_url,
+    connect_args={"check_same_thread": False} if sync_url.startswith("sqlite") else {},
 )
 
-
+# Create tables synchronously
 metadata.create_all(engine)
-database = databases.Database(
-    config.DATABASE_URL, force_rollback=config.DATABASE_FORCE_ROLL_BACK
-)
+
+# Async database instance
+database = databases.Database(config.DATABASE_URL)
