@@ -2,6 +2,7 @@ from typing import Optional
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 # -----------------------------
 # Base class only cares about ENV_STATE
 # -----------------------------
@@ -12,6 +13,7 @@ class BaseClass(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",  # ignore unknown env vars
     )
+
 
 # -----------------------------
 # Global config for DB and flags
@@ -26,34 +28,29 @@ class GlobalConfig(BaseSettings):
         extra="ignore",  # important to ignore unknown vars
     )
 
+
 # -----------------------------
 # Environment-specific configs
 # -----------------------------
 class DevConfig(GlobalConfig):
     model_config = SettingsConfigDict(
-        env_prefix="DEV_",
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore"
+        env_prefix="DEV_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
+
 
 class ProdConfig(GlobalConfig):
     model_config = SettingsConfigDict(
-        env_prefix="PROD_",
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore"
+        env_prefix="PROD_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
+
 
 class TestConfig(GlobalConfig):
     DATABASE_URL: str = "sqlite+aiosqlite:///./test.db"
     BD_FORCE_RELOAD: bool = True
     model_config = SettingsConfigDict(
-        env_prefix="TEST_",
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore"
+        env_prefix="TEST_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
+
 
 # -----------------------------
 # Load config once using LRU cache
@@ -67,5 +64,6 @@ def get_config():
         "test": TestConfig(),
     }
     return configs.get(env_state, DevConfig())
+
 
 config = get_config()

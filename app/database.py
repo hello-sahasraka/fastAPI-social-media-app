@@ -1,5 +1,3 @@
-# database.py
-
 from app.config import config
 import sqlalchemy
 import databases
@@ -14,7 +12,7 @@ post_table = sqlalchemy.Table(
     sqlalchemy.Column("body", sqlalchemy.String, nullable=False),
 )
 
-comment_table = sqlalchemy.Table(
+comments_table = sqlalchemy.Table(
     "comments",
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
