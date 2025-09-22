@@ -22,11 +22,29 @@ def configure_logging() -> None:
                 }
             },
             "loggers": {
+                "uvicorn": {
+                    "handlers": ["default"],
+                    "level": "INFO",
+                    "propagate": False
+                },
+                
                 "app": {
                     "handlers": ["default"],
                     "level": "DEBUG" if isinstance(config, DevConfig) else "INFO",
                     "propagate": False
-                }
+                },
+
+                "database": {
+                    "handlers": ["default"],
+                    "level": "WARNING",
+                    "propagate": False
+                },
+
+                "sqlalchemy": {
+                    "handlers": ["default"],
+                    "level": "WARNING",
+                    "propagate": False
+                },
             }
         }
     )

@@ -6,7 +6,7 @@ from app.routers.routes_posts import router as posts_router
 from app.logging_conf import configure_logging
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("app")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # Base class only cares about ENV_STATE
 # -----------------------------
 class BaseClass(BaseSettings):
-    ENV_STATE: Optional[str] = "dev"
+    ENV_STATE: Optional[str] = None
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
