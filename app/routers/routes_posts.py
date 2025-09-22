@@ -1,3 +1,5 @@
+
+import logging
 from fastapi import APIRouter, HTTPException
 from app.database import post_table, comments_table, database
 from fastapi import status
@@ -14,6 +16,7 @@ router = APIRouter(
     tags=["posts"],
 )
 
+logger = logging.getLogger(__name__)
 
 async def findPost(post_id: int):
     query = post_table.select().where(post_table.c.id == post_id)
