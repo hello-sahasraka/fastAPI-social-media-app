@@ -4,7 +4,15 @@ import databases
 
 metadata = sqlalchemy.MetaData()
 
-# Example tables
+user_table = sqlalchemy.Table(
+    "user",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, autoincrement=True, primary_key=True),
+    sqlalchemy.Column("name", sqlalchemy.String),
+    sqlalchemy.Column("email", sqlalchemy.String, unique=True),
+    sqlalchemy.Column("password", sqlalchemy.String),
+)
+
 post_table = sqlalchemy.Table(
     "posts",
     metadata,
@@ -29,6 +37,7 @@ engine = sqlalchemy.create_engine(
 )
 
 # Create tables synchronously
+# metadata.drop_all(engine)
 metadata.create_all(engine)
 
 # Async database instance
