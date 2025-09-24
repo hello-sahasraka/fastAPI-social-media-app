@@ -25,6 +25,7 @@ app.add_middleware(CorrelationIdMiddleware)
 
 app.include_router(posts_router)
 
+
 @app.exception_handler(HTTPException)
 async def http_exception_handle_logging(request, exc):
     logger.error(f"HTTP Exception: {exc.detail}")

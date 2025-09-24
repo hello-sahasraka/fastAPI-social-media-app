@@ -7,7 +7,7 @@ def obfuscated(email: str, obfuscated_length: int) -> str:
     characters = email[:obfuscated_length]
     first, last = email.split("@")
 
-    return characters + ("*" * (len(first)) - obfuscated_length) + "@" + last
+    return characters + ("*" * (len(first) - obfuscated_length)) + "@" + last
 
 class EmailObfuscationFilter(logging.Filter):
     def __init__(self, name: str ="", obfuscated_length: int = 2) -> None:
@@ -17,6 +17,8 @@ class EmailObfuscationFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
         if "email" in record.__dict__:
             record.email = obfuscated(record.email, self.obfuscated_length)
+        return True
+
 
 
 def configure_logging() -> None:
