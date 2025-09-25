@@ -12,3 +12,9 @@ async def test_get_user_not_found():
     user = await security.get_user("test@notfound.com")
 
     assert user is None
+
+@pytest.mark.anyio
+async def test_password_hashed():
+    password = "password"
+
+    assert security.verify_password(password, security.get_password_hashed(password))

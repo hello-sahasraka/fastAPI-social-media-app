@@ -1,7 +1,7 @@
 import logging
 from fastapi import APIRouter, HTTPException, status
 from app.models.users import UserIn
-from app.security import get_user
+from app.security import get_user, get_password_hashed
 from app.database import database, user_table
 
 logger = logging.getLogger(__name__)
@@ -20,10 +20,11 @@ async def create_user(user: UserIn):
         )
     logger.info("Data recieved")
     data = user.model_dump()
-    query = user_table.insert().values(data)
+    data["password"] = get_password_hashed(data["password"])
 
-    compiled = query.compile(compile_kwargs={"literal_binds": True})
-    logger.debug(f"Executing query: {compiled}")
+    query = user_table.insert().values(data) 
+    # compiled = query.compile(compile_kwargs={"literal_binds": True})
+    logger.debug(f"Executing query: {query}")
+    await database.execute(query)
 
-    last_record_id = await database.execute(query)
-    return {**data, "id": last_record_id}
+    return {"message": "User Created succesfully!"}

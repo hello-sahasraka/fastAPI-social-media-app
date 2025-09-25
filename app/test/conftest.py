@@ -8,7 +8,6 @@ from app.database import database, user_table
 
 os.environ["ENV_STATE"] = "test"
 
-from app.database import database
 from app.main import app
 
 
@@ -25,7 +24,8 @@ def client() -> Generator:
 @pytest.fixture(autouse=True)
 async def db() -> AsyncGenerator:
     await database.connect()
-    yield
+    async with database.transaction(force_rollback=True):
+        yield
     await database.disconnect()
 
 
