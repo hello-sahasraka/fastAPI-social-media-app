@@ -60,6 +60,7 @@ async def test_create_post(async_client: AsyncClient, logged_in_token: str):
     assert response.status_code == 201
     assert data["body"] == body
     assert "id" in data and isinstance(data["id"], int)
+    # assert "user_id" in data and isinstance(data["user_id"], int)
 
 
 @pytest.mark.anyio

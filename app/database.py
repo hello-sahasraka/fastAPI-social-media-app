@@ -18,6 +18,7 @@ post_table = sqlalchemy.Table(
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("body", sqlalchemy.String, nullable=False),
+    sqlalchemy.Column("user_id", sqlalchemy.ForeignKey("user.id"))
 )
 
 comments_table = sqlalchemy.Table(
@@ -26,6 +27,7 @@ comments_table = sqlalchemy.Table(
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("body", sqlalchemy.String, nullable=False),
     sqlalchemy.Column("post_id", sqlalchemy.ForeignKey("posts.id")),
+    sqlalchemy.Column("user_id", sqlalchemy.ForeignKey("user.id"))
 )
 
 # If SQLite async, use a sync URL for table creation
@@ -37,7 +39,7 @@ engine = sqlalchemy.create_engine(
 )
 
 # Create tables synchronously
-# metadata.drop_all(engine)
+metadata.drop_all(engine)
 metadata.create_all(engine)
 
 # Async database instance
