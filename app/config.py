@@ -21,6 +21,7 @@ class BaseClass(BaseSettings):
 class GlobalConfig(BaseSettings):
     DATABASE_URL: Optional[str] = None
     BD_FORCE_RELOAD: bool = False
+    SECRET_KEY: Optional[str] = None
 
     model_config = SettingsConfigDict(
         env_file=".env",

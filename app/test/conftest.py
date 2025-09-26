@@ -35,12 +35,19 @@ async def async_client():
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
 
+
 @pytest.fixture()
 async def created_user(async_client: AsyncClient) -> dict:
-    user_details = {"name": "test", "email": "test@example.net", "password": "1234"}
+    user_details = {"name": "test", "email": "test@example.netfake", "password": "1234"}
     await async_client.post("/user/", json=user_details)
     query = user_table.select().where(user_table.c.email == user_details["email"])
     user = await database.fetch_one(query)
     user_details["id"] = user["id"]
     return user_details
 
+
+@pytest.fixture()
+async def logged_in_token(async_client: AsyncClient, created_user: dict) -> str:
+    response = await async_client.post("/user/login", json=created_user)
+
+    return response.json()["access_token"]

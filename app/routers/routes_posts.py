@@ -1,7 +1,6 @@
 import logging
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status, Depends
 from app.database import post_table, comments_table, database
-from fastapi import status
 from app.models.posts import (
     PostsIn,
     PostsOut,
@@ -9,6 +8,9 @@ from app.models.posts import (
     CommentsOut,
     UserPostsWithCommentsResponse,
 )
+from typing import Annotated
+from app.models.users import UserIn
+from app.security import get_current_user
 
 router = APIRouter(
     prefix="/post",
@@ -26,7 +28,8 @@ async def findPost(post_id: int):
 
 
 @router.post("/", response_model=PostsOut, status_code=status.HTTP_201_CREATED)
-async def create_post(post: PostsIn):
+async def create_post(post: PostsIn, current_user: Annotated[UserIn, Depends(get_current_user)]):
+
     logger.info("Creating a new post")
     data = post.model_dump()
     query = post_table.insert().values(data)
@@ -44,7 +47,9 @@ async def get_all_post():
 
 
 @router.post("/comment", response_model=CommentsOut, status_code=status.HTTP_200_OK)
-async def create_comment(comment: CommentsIn):
+async def create_comment(comment: CommentsIn, current_user: Annotated[UserIn, Depends(get_current_user)]):
+    
+
     logger.info(f"Creating comment for post id: {comment.post_id}")
     post = await findPost(comment.post_id)
 

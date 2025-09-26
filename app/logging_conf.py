@@ -9,8 +9,9 @@ def obfuscated(email: str, obfuscated_length: int) -> str:
 
     return characters + ("*" * (len(first) - obfuscated_length)) + "@" + last
 
+
 class EmailObfuscationFilter(logging.Filter):
-    def __init__(self, name: str ="", obfuscated_length: int = 2) -> None:
+    def __init__(self, name: str = "", obfuscated_length: int = 2) -> None:
         super().__init__(name)
         self.obfuscated_length = obfuscated_length
 
@@ -18,7 +19,6 @@ class EmailObfuscationFilter(logging.Filter):
         if "email" in record.__dict__:
             record.email = obfuscated(record.email, self.obfuscated_length)
         return True
-
 
 
 def configure_logging() -> None:
@@ -32,11 +32,10 @@ def configure_logging() -> None:
                     "uuid_length": 8 if isinstance(config, DevConfig) else 32,
                     "default_value": "-",
                 },
-
                 "email_obfuscation": {
                     "()": EmailObfuscationFilter,
-                    "obfuscated_length": 2 if isinstance(config, DevConfig) else 0
-                }
+                    "obfuscated_length": 2 if isinstance(config, DevConfig) else 0,
+                },
             },
             "formatters": {
                 "console": {
