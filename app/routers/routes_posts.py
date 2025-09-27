@@ -1,9 +1,12 @@
 import logging
+import sqlalchemy
 from fastapi import APIRouter, HTTPException, status, Depends
-from app.database import post_table, comments_table, database
+from app.database import post_table, comments_table, likes_table, database
 from app.models.posts import (
     PostsIn,
     PostsOut,
+    PostLikeIn,
+    PostLikeOut,
     CommentsIn,
     CommentsOut,
     UserPostsWithCommentsResponse,
@@ -18,6 +21,12 @@ router = APIRouter(
 )
 
 logger = logging.getLogger(__name__)
+
+select_post_and_likes = (
+    sqlalchemy.select(
+        post_table, sqlalchemy.func.count(likes_table.c.id).label("likes")
+    ).select_from(post_table.outerjoin(likes_table)).group_by(post_table.c.id)
+)
 
 
 async def findPost(post_id: int):
@@ -74,7 +83,11 @@ async def get_post_comments(post_id: int):
 @router.get("/{post_id}", response_model=UserPostsWithCommentsResponse)
 async def get_post_with_comments(post_id: int):
     logger.info(f"Fetching post with id: {post_id} and its comments")
-    post = await findPost(post_id)
+    
+    query = select_post_and_likes.where(post_table.c.id == post_id)
+    logger.debug(f"Executing query: {query}")
+
+    post = await database.fetch_one(query)
 
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -82,3 +95,24 @@ async def get_post_with_comments(post_id: int):
         "post": post,
         "comments": await get_post_comments(post_id),
     }
+
+@router.post("/like", response_model=PostLikeOut, status_code=status.HTTP_201_CREATED)
+async def like_post(like: PostLikeIn, current_user: Annotated[UserIn, Depends(get_current_user)]):
+    logger.info("Liking post")
+
+    post = await findPost(like.post_id)
+
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post not found",
+        )
+    
+    data = {**like.model_dump(), "user_id": current_user.id}
+    query = likes_table.insert().values(data)
+    logger.debug(f"Executing query: {query}")
+    last_recorded_id = await database.execute(query)
+
+    return {**data, "id": last_recorded_id}
+
+

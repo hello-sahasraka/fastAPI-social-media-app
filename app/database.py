@@ -30,6 +30,14 @@ comments_table = sqlalchemy.Table(
     sqlalchemy.Column("user_id", sqlalchemy.ForeignKey("user.id"))
 )
 
+likes_table = sqlalchemy.Table(
+    "likes",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("post_id", sqlalchemy.ForeignKey("posts.id")),
+    sqlalchemy.Column("user_id", sqlalchemy.ForeignKey("user.id"))
+)
+
 # If SQLite async, use a sync URL for table creation
 sync_url = config.DATABASE_URL.replace("sqlite+aiosqlite", "sqlite")
 
@@ -39,7 +47,7 @@ engine = sqlalchemy.create_engine(
 )
 
 # Create tables synchronously
-metadata.drop_all(engine)
+# metadata.drop_all(engine)
 metadata.create_all(engine)
 
 # Async database instance

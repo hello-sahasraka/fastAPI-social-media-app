@@ -21,12 +21,22 @@ class CommentsOut(CommentsIn):
     user_id: int
     model_config = ConfigDict(from_attributes=True)
 
+class UserPostsWithLikes(PostsOut):
+    likes: int
 
 class UserPostsWithComments(BaseModel):
-    post: PostsOut
+    post: UserPostsWithLikes
     comments: list[CommentsOut]
 
 
 class UserPostsWithCommentsResponse(BaseModel):
-    post: PostsOut
+    post: UserPostsWithLikes
     comments: list[CommentsOut]
+
+class PostLikeIn(BaseModel):
+    post_id: int
+
+class PostLikeOut(PostLikeIn):
+    id: int
+    user_id: int
+
