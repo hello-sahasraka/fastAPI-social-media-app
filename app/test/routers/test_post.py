@@ -32,20 +32,21 @@ async def create_comment(
 
 
 async def create_like(
-        post_id: int, async_client: AsyncClient, logged_in_token: str 
+    post_id: int, async_client: AsyncClient, logged_in_token: str
 ) -> dict:
     response = await async_client.post(
         "/post/like",
         json={"post_id": post_id},
         headers={"Authorization": f"Bearer {logged_in_token}"},
-    )  
+    )
 
-    return response.json()  
+    return response.json()
 
 
 @pytest.fixture()
 async def created_post(async_client: AsyncClient, logged_in_token: str):
-    return await create_post("Test post", async_client, logged_in_token)
+    post = await create_post("Test post", async_client, logged_in_token)
+    return {**post, "likes": 0}
 
 
 @pytest.fixture()
@@ -74,27 +75,34 @@ async def test_create_post(async_client: AsyncClient, logged_in_token: str):
     assert "id" in data and isinstance(data["id"], int)
     # assert "user_id" in data and isinstance(data["user_id"], int)
 
+
 @pytest.mark.anyio
-async def test_like_post(async_client: AsyncClient, created_post: dict, logged_in_token: str):
+async def test_like_post(
+    async_client: AsyncClient, created_post: dict, logged_in_token: str
+):
     response = await async_client.post(
         "/post/like",
         json={"post_id": created_post["id"]},
         headers={"Authorization": f"Bearer {logged_in_token}"},
-    ) 
+    )
 
-    assert response.status_code == 201 
-
+    assert response.status_code == 201
 
 
 @pytest.mark.anyio
-async def test_create_post_expired_token(async_client: AsyncClient, created_user: dict, mocker):
+async def test_create_post_expired_token(
+    async_client: AsyncClient, created_user: dict, mocker
+):
     mocker.patch("app.security.access_token_expire_minutes", return_value=-1)
     token = security.create_access_token(created_user["email"])
-    response = await async_client.post("/post/", json={"body": "Test Post"}, headers={"Authorization": f"Bearer {token}"})
+    response = await async_client.post(
+        "/post/",
+        json={"body": "Test Post"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
 
     assert response.status_code == 401
     assert "Token has expired" in response.json()["detail"]
-
 
 
 @pytest.mark.anyio
@@ -111,6 +119,48 @@ async def test_create_post_missing_data(
 
 
 @pytest.mark.anyio
+@pytest.mark.parametrize(
+    "sorting, expected_order",
+    [
+        ("new", [3, 2, 1]),
+        ("old", [1, 2, 3]),
+    ]
+)
+async def test_get_all_posts_sorting(async_client: AsyncClient, logged_in_token: str, sorting: str, expected_order: list[int]):
+    await create_post("Test post_1", async_client, logged_in_token)
+    await create_post("Test post_2", async_client, logged_in_token)
+    await create_post("Test post_3", async_client, logged_in_token)
+
+    response = await async_client.get("/post/", params={"sorting": sorting})
+    assert response.status_code == 200
+
+    data = response.json()
+    post_ids = [post["id"] for post in data]
+
+    assert post_ids == expected_order
+
+@pytest.mark.anyio
+async def test_get_all_posts_sort_likes(async_client: AsyncClient, logged_in_token: str):
+    await create_post("Test post_1", async_client, logged_in_token)
+    await create_post("Test post_2", async_client, logged_in_token)
+
+    await create_like(1, async_client, logged_in_token)
+
+    response = await async_client.get("/post/", params={"sorting": "most_likes"})
+    assert response.status_code == 200
+
+    data = response.json()
+    post_ids = [post["id"] for post in data]
+    expected_order = [1, 2]
+    assert post_ids == expected_order
+
+@pytest.mark.anyio
+async def test_get_all_posts_wrong_sorting(async_client: AsyncClient):
+    response = await async_client.get("/post/", params={"sorting": "wrong_sort"})
+    assert response.status_code == 422
+
+
+@pytest.mark.anyio
 async def test_get_all_post(async_client: AsyncClient, created_post: dict):
     response = await async_client.get("/post/")
 
@@ -119,12 +169,16 @@ async def test_get_all_post(async_client: AsyncClient, created_post: dict):
 
 
 @pytest.mark.anyio
-async def test_create_comment(async_client: AsyncClient, created_post: dict,  logged_in_token: str):
+async def test_create_comment(
+    async_client: AsyncClient, created_post: dict, logged_in_token: str
+):
     body = "Test comment"
     post_id = created_post["id"]
 
     response = await async_client.post(
-        "/post/comment", json={"body": body, "post_id": post_id}, headers={"Authorization": f"Bearer {logged_in_token}"},
+        "/post/comment",
+        json={"body": body, "post_id": post_id},
+        headers={"Authorization": f"Bearer {logged_in_token}"},
     )
 
     data = response.json()
@@ -136,13 +190,16 @@ async def test_create_comment(async_client: AsyncClient, created_post: dict,  lo
 
 
 @pytest.mark.anyio
-async def test_create_comment_post_not_found(async_client: AsyncClient, logged_in_token: str):
+async def test_create_comment_post_not_found(
+    async_client: AsyncClient, logged_in_token: str
+):
     body = "Test comment"
     post_id = 99
 
     response = await async_client.post(
-        "/post/comment", json={"body": body, "post_id": post_id},
-         headers={"Authorization": f"Bearer {logged_in_token}"},
+        "/post/comment",
+        json={"body": body, "post_id": post_id},
+        headers={"Authorization": f"Bearer {logged_in_token}"},
     )
 
     assert response.status_code == 404
@@ -150,11 +207,15 @@ async def test_create_comment_post_not_found(async_client: AsyncClient, logged_i
 
 @pytest.mark.anyio
 async def test_create_comment_missing_data(
-    async_client: AsyncClient, created_post: dict,  logged_in_token: str
+    async_client: AsyncClient, created_post: dict, logged_in_token: str
 ):
     post_id = created_post["id"]
 
-    response = await async_client.post("/post/comment", json={"post_id": post_id}, headers={"Authorization": f"Bearer {logged_in_token}"})
+    response = await async_client.post(
+        "/post/comment",
+        json={"post_id": post_id},
+        headers={"Authorization": f"Bearer {logged_in_token}"},
+    )
 
     assert response.status_code == 422
 

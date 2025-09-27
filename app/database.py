@@ -18,7 +18,7 @@ post_table = sqlalchemy.Table(
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("body", sqlalchemy.String, nullable=False),
-    sqlalchemy.Column("user_id", sqlalchemy.ForeignKey("user.id"))
+    sqlalchemy.Column("user_id", sqlalchemy.ForeignKey("user.id")),
 )
 
 comments_table = sqlalchemy.Table(
@@ -27,7 +27,7 @@ comments_table = sqlalchemy.Table(
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("body", sqlalchemy.String, nullable=False),
     sqlalchemy.Column("post_id", sqlalchemy.ForeignKey("posts.id")),
-    sqlalchemy.Column("user_id", sqlalchemy.ForeignKey("user.id"))
+    sqlalchemy.Column("user_id", sqlalchemy.ForeignKey("user.id")),
 )
 
 likes_table = sqlalchemy.Table(
@@ -35,7 +35,7 @@ likes_table = sqlalchemy.Table(
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("post_id", sqlalchemy.ForeignKey("posts.id")),
-    sqlalchemy.Column("user_id", sqlalchemy.ForeignKey("user.id"))
+    sqlalchemy.Column("user_id", sqlalchemy.ForeignKey("user.id")),
 )
 
 # If SQLite async, use a sync URL for table creation
