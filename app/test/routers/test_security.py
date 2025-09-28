@@ -10,9 +10,22 @@ async def test_access_token_expire_minutes():
 
 
 @pytest.mark.anyio
+async def test_confirm_token_expire_minutes():
+    assert security.confirmn_token_expire_minutes() == 1440
+
+
+@pytest.mark.anyio
 async def test_create_access_token():
     token = security.create_access_token("hello")
-    assert {"sub": "hello"}.items() <= jwt.decode(
+    assert {"sub": "hello","type": "access"}.items() <= jwt.decode(
+        token, key=config.SECRET_KEY, algorithms=[security.ALGORITHM]
+    ).items()
+
+
+@pytest.mark.anyio
+async def test_create_confirmation_token():
+    token = security.create_confirmation_token("hello")
+    assert {"sub": "hello","type": "confirmation"}.items() <= jwt.decode(
         token, key=config.SECRET_KEY, algorithms=[security.ALGORITHM]
     ).items()
 
@@ -71,3 +84,10 @@ async def test_get_current_user(created_user: dict):
 async def test_get_current_user_invalid_token():
     with pytest.raises(security.HTTPException):
         await security.get_current_user("Invalid token")
+
+@pytest.mark.anyio
+async def test_get_current_user_wrong_token_type(created_user: dict):
+    token = security.create_confirmation_token(created_user["email"])
+
+    with pytest.raises(security.HTTPException):
+        await security.get_current_user(token)
