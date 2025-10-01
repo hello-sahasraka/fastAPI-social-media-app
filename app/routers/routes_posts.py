@@ -58,7 +58,9 @@ class PostSorting(str, Enum):
     most_likes = "most_likes"
 
 
-@router.get("/", response_model=list[UserPostsWithLikes], status_code=status.HTTP_200_OK)
+@router.get(
+    "/", response_model=list[UserPostsWithLikes], status_code=status.HTTP_200_OK
+)
 async def get_all_post(sorting: PostSorting = PostSorting.new):
     logger.info("Fetching all posts")
 

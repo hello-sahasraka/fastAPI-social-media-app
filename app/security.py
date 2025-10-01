@@ -1,7 +1,7 @@
 import datetime
 import logging
 
-from typing import Annotated
+from typing import Annotated, Literal
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import ExpiredSignatureError, JWTError, jwt
@@ -16,9 +16,10 @@ ALGORITHM = "HS256"
 pwd_contex = CryptContext(schemes=["bcrypt"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-credentials_exception = HTTPException(
+def create_credentials_exception(detail: str) -> HTTPException: 
+    return HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Could not validate credentials",
+    detail=detail,
     headers={"wWW-Authenticate": "Bearer"},
 )
 
@@ -33,6 +34,7 @@ def verify_password(palin_password: str, hashed_password: str) -> bool:
 
 def access_token_expire_minutes() -> int:
     return 60
+
 
 def confirmn_token_expire_minutes() -> int:
     return 1440
@@ -58,6 +60,28 @@ def create_confirmation_token(email: str):
     return encoded_jwt
 
 
+def get_subject_for_token_type(
+    token: str, expected_type: Literal["access", "confirmation"]
+) -> str:
+    try:
+        payload = jwt.decode(token, key=config.SECRET_KEY, algorithms=ALGORITHM)
+    except ExpiredSignatureError as e:
+        raise create_credentials_exception("Token has expired") from e
+    except JWTError as e:
+        raise create_credentials_exception("Invalid token") from e
+
+    email = payload.get("sub")
+
+    if email is None:
+        raise create_credentials_exception("Token is missing 'sub field")
+
+    type = payload.get("type")
+
+    if type is None or type != expected_type:
+        raise create_credentials_exception(f"Token has incorrect type, expected '{expected_type}'")
+    return email
+
+
 async def get_user(email: str):
     logger.debug("Fetching user from database", extra={"email": email})
     query = user_table.select().where(user_table.c.email == email)
@@ -72,36 +96,17 @@ async def authenticate_user(email: str, password: str):
     user = await get_user(email)
 
     if not user:
-        raise credentials_exception
+        raise create_credentials_exception("Inavlid email or password")
 
     if not verify_password(password, user["password"]):
-        raise credentials_exception
+        raise create_credentials_exception("Inavlid email or password")
     return user
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-    try:
-        payload = jwt.decode(token, key=config.SECRET_KEY, algorithms=ALGORITHM)
-        email = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-        
-        type = payload.get("type")
-
-        if type is None or type != "access":
-            raise credentials_exception
-
-    except ExpiredSignatureError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired",
-            headers={"WWW-Authenticate": "Bearer"},
-        ) from e
-    except JWTError as e:
-        raise credentials_exception from e
-
+    email = get_subject_for_token_type(token, "access")
     user = await get_user(email)
 
     if user is None:
-        raise credentials_exception
+        raise create_credentials_exception("Could not find user for this token")
     return user

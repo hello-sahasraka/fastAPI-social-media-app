@@ -124,9 +124,14 @@ async def test_create_post_missing_data(
     [
         ("new", [3, 2, 1]),
         ("old", [1, 2, 3]),
-    ]
+    ],
 )
-async def test_get_all_posts_sorting(async_client: AsyncClient, logged_in_token: str, sorting: str, expected_order: list[int]):
+async def test_get_all_posts_sorting(
+    async_client: AsyncClient,
+    logged_in_token: str,
+    sorting: str,
+    expected_order: list[int],
+):
     await create_post("Test post_1", async_client, logged_in_token)
     await create_post("Test post_2", async_client, logged_in_token)
     await create_post("Test post_3", async_client, logged_in_token)
@@ -139,8 +144,11 @@ async def test_get_all_posts_sorting(async_client: AsyncClient, logged_in_token:
 
     assert post_ids == expected_order
 
+
 @pytest.mark.anyio
-async def test_get_all_posts_sort_likes(async_client: AsyncClient, logged_in_token: str):
+async def test_get_all_posts_sort_likes(
+    async_client: AsyncClient, logged_in_token: str
+):
     await create_post("Test post_1", async_client, logged_in_token)
     await create_post("Test post_2", async_client, logged_in_token)
 
@@ -153,6 +161,7 @@ async def test_get_all_posts_sort_likes(async_client: AsyncClient, logged_in_tok
     post_ids = [post["id"] for post in data]
     expected_order = [1, 2]
     assert post_ids == expected_order
+
 
 @pytest.mark.anyio
 async def test_get_all_posts_wrong_sorting(async_client: AsyncClient):
