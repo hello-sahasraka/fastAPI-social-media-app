@@ -11,6 +11,7 @@ user_table = sqlalchemy.Table(
     sqlalchemy.Column("name", sqlalchemy.String),
     sqlalchemy.Column("email", sqlalchemy.String, unique=True),
     sqlalchemy.Column("password", sqlalchemy.String),
+    sqlalchemy.Column("confirmed", sqlalchemy.Boolean, default=False),
 )
 
 post_table = sqlalchemy.Table(
@@ -47,7 +48,7 @@ engine = sqlalchemy.create_engine(
 )
 
 # Create tables synchronously
-# metadata.drop_all(engine)
+metadata.drop_all(engine)
 metadata.create_all(engine)
 
 # Async database instance

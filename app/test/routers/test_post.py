@@ -59,7 +59,7 @@ async def created_comment(
 
 
 @pytest.mark.anyio
-async def test_create_post(async_client: AsyncClient, logged_in_token: str):
+async def test_create_post(async_client: AsyncClient, confirm_user: dict, logged_in_token: str):
     body = "Test post"
 
     response = await async_client.post(
@@ -73,7 +73,11 @@ async def test_create_post(async_client: AsyncClient, logged_in_token: str):
     assert response.status_code == 201
     assert data["body"] == body
     assert "id" in data and isinstance(data["id"], int)
-    # assert "user_id" in data and isinstance(data["user_id"], int)
+    assert  {
+        "id": 1,
+        "body": body,
+        "user_id": confirm_user["id"]
+    }.items() <= response.json().items()
 
 
 @pytest.mark.anyio
@@ -91,10 +95,10 @@ async def test_like_post(
 
 @pytest.mark.anyio
 async def test_create_post_expired_token(
-    async_client: AsyncClient, created_user: dict, mocker
+    async_client: AsyncClient, confirm_user: dict, mocker
 ):
     mocker.patch("app.security.access_token_expire_minutes", return_value=-1)
-    token = security.create_access_token(created_user["email"])
+    token = security.create_access_token(confirm_user["email"])
     response = await async_client.post(
         "/post/",
         json={"body": "Test Post"},
@@ -179,7 +183,7 @@ async def test_get_all_post(async_client: AsyncClient, created_post: dict):
 
 @pytest.mark.anyio
 async def test_create_comment(
-    async_client: AsyncClient, created_post: dict, logged_in_token: str
+    async_client: AsyncClient, created_post: dict, confirm_user: dict, logged_in_token: str
 ):
     body = "Test comment"
     post_id = created_post["id"]
@@ -194,6 +198,12 @@ async def test_create_comment(
 
     assert response.status_code == 200
     assert data["body"] == body
+    assert  {
+        "id": 1,
+        "body": body,
+        "post_id": created_post["id"],
+        "user_id": confirm_user["id"]
+    }.items() <= response.json().items()
     assert "id" in data and isinstance(data["id"], int)
     assert "post_id" in data and isinstance(data["post_id"], int)
 

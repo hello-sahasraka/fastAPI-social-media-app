@@ -105,12 +105,12 @@ async def test_password_hashed():
 
 
 @pytest.mark.anyio
-async def test_authenticate_user(created_user: dict):
+async def test_authenticate_user(confirm_user: dict):
     user = await security.authenticate_user(
-        created_user["email"], created_user["password"]
+        confirm_user["email"], confirm_user["password"]
     )
 
-    assert user["email"] == created_user["email"]
+    assert user["email"] == confirm_user["email"]
 
 
 @pytest.mark.anyio
