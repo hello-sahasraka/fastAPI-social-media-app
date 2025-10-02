@@ -16,12 +16,13 @@ ALGORITHM = "HS256"
 pwd_contex = CryptContext(schemes=["bcrypt"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-def create_credentials_exception(detail: str) -> HTTPException: 
+
+def create_credentials_exception(detail: str) -> HTTPException:
     return HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail=detail,
-    headers={"wWW-Authenticate": "Bearer"},
-)
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=detail,
+        headers={"wWW-Authenticate": "Bearer"},
+    )
 
 
 def get_password_hashed(password: str) -> str:
@@ -78,7 +79,9 @@ def get_subject_for_token_type(
     type = payload.get("type")
 
     if type is None or type != expected_type:
-        raise create_credentials_exception(f"Token has incorrect type, expected '{expected_type}'")
+        raise create_credentials_exception(
+            f"Token has incorrect type, expected '{expected_type}'"
+        )
     return email
 
 

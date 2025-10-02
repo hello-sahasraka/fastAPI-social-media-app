@@ -1,6 +1,7 @@
 import pytest
 from httpx import AsyncClient
-from fastapi import Request
+from fastapi import BackgroundTasks
+
 
 
 async def create_user(async_client: AsyncClient, name: str, email: str, password: str):
@@ -25,32 +26,36 @@ async def test_create_user_already_exist(async_client: AsyncClient, created_user
     )
     assert response.status_code == 400
 
+
 @pytest.mark.anyio
 async def test_confirm_user(async_client: AsyncClient, mocker):
-    spy = mocker.spy(Request, "url_for")
+    spy = mocker.spy(BackgroundTasks, "add_task")
     await create_user(async_client, "test", "test@gmail.com", "1234")
-    confirmation_url = str(spy.spy_return)
+    confirmation_url = str(spy.call_args[1]["confirmation_url"])
 
     response = await async_client.post(confirmation_url)
     assert response.status_code == 200
     assert "User confirmed" in response.json()["detail"]
 
+
 @pytest.mark.anyio
 async def test_confirm_user_invalid_token(async_client: AsyncClient):
-    response = await  async_client.post("/user/confirm/invalid_token")
+    response = await async_client.post("/user/confirm/invalid_token")
 
     assert response.status_code == 401
 
+
 @pytest.mark.anyio
 async def test_confirm_user_expired_token(async_client: AsyncClient, mocker):
-    mocker.patch("app.security.confirmn_token_expire_minutes", return_value = -1)
-    spy = mocker.spy(Request, "url_for")
+    mocker.patch("app.security.confirmn_token_expire_minutes", return_value=-1)
+    spy = mocker.spy(BackgroundTasks, "add_task")
     await create_user(async_client, "test", "test@gmail.com", "1234")
-    confirmation_url = str(spy.spy_return)
+    confirmation_url = str(spy.call_args[1]["confirmation_url"])
 
     response = await async_client.post(confirmation_url)
     assert response.status_code == 401
     assert "Token has expired" in response.json()["detail"]
+
 
 @pytest.mark.anyio
 async def test_login_user_not_exist(async_client: AsyncClient):
@@ -59,6 +64,7 @@ async def test_login_user_not_exist(async_client: AsyncClient):
     )
 
     assert response.status_code == 401
+
 
 @pytest.mark.anyio
 async def test_login_user_not_confirmed(async_client: AsyncClient, created_user: dict):

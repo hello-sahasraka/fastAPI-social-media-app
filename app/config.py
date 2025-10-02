@@ -22,6 +22,8 @@ class GlobalConfig(BaseSettings):
     DATABASE_URL: Optional[str] = None
     BD_FORCE_RELOAD: bool = False
     SECRET_KEY: Optional[str] = None
+    MAILGUN_API_KEY: str
+    MAILGUN_DOMAIN: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -58,13 +60,16 @@ class TestConfig(GlobalConfig):
 # -----------------------------
 @lru_cache()
 def get_config():
-    env_state = BaseClass().ENV_STATE or "dev"
+    env_state = (BaseClass().ENV_STATE or "dev").lower()
+
     configs = {
-        "dev": DevConfig(),
-        "prod": ProdConfig(),
-        "test": TestConfig(),
+        "dev": DevConfig,
+        "prod": ProdConfig,
+        "test": TestConfig,
     }
-    return configs.get(env_state, DevConfig())
+
+    config_class = configs.get(env_state, DevConfig)
+    return config_class()
 
 
 config = get_config()

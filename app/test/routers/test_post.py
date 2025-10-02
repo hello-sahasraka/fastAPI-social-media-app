@@ -59,7 +59,9 @@ async def created_comment(
 
 
 @pytest.mark.anyio
-async def test_create_post(async_client: AsyncClient, confirm_user: dict, logged_in_token: str):
+async def test_create_post(
+    async_client: AsyncClient, confirm_user: dict, logged_in_token: str
+):
     body = "Test post"
 
     response = await async_client.post(
@@ -73,10 +75,10 @@ async def test_create_post(async_client: AsyncClient, confirm_user: dict, logged
     assert response.status_code == 201
     assert data["body"] == body
     assert "id" in data and isinstance(data["id"], int)
-    assert  {
+    assert {
         "id": 1,
         "body": body,
-        "user_id": confirm_user["id"]
+        "user_id": confirm_user["id"],
     }.items() <= response.json().items()
 
 
@@ -183,7 +185,10 @@ async def test_get_all_post(async_client: AsyncClient, created_post: dict):
 
 @pytest.mark.anyio
 async def test_create_comment(
-    async_client: AsyncClient, created_post: dict, confirm_user: dict, logged_in_token: str
+    async_client: AsyncClient,
+    created_post: dict,
+    confirm_user: dict,
+    logged_in_token: str,
 ):
     body = "Test comment"
     post_id = created_post["id"]
@@ -198,11 +203,11 @@ async def test_create_comment(
 
     assert response.status_code == 200
     assert data["body"] == body
-    assert  {
+    assert {
         "id": 1,
         "body": body,
         "post_id": created_post["id"],
-        "user_id": confirm_user["id"]
+        "user_id": confirm_user["id"],
     }.items() <= response.json().items()
     assert "id" in data and isinstance(data["id"], int)
     assert "post_id" in data and isinstance(data["post_id"], int)

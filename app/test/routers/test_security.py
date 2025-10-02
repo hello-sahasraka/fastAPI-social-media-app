@@ -5,6 +5,7 @@ from app.config import config
 
 ALGORITHM = "HS256"
 
+
 @pytest.mark.anyio
 async def test_access_token_expire_minutes():
     assert security.access_token_expire_minutes() == 60
@@ -30,12 +31,14 @@ async def test_create_confirmation_token():
         token, key=config.SECRET_KEY, algorithms=[security.ALGORITHM]
     ).items()
 
+
 def test_get_subject_for_token_type_valid_confirmation():
     email = "test@example.com"
     token = security.create_confirmation_token(email)
 
     assert email == security.get_subject_for_token_type(token, "confirmation")
-    
+
+
 def test_get_subject_for_token_type_valid_access():
     email = "test@example.com"
     token = security.create_access_token(email)
@@ -47,15 +50,17 @@ def test_get_subject_for_token_type_expired(mocker):
     mocker.patch("app.security.access_token_expire_minutes", return_value=-1)
     email = "test@example.com"
     token = security.create_access_token(email)
-    with  pytest.raises(security.HTTPException) as exe_info:
+    with pytest.raises(security.HTTPException) as exe_info:
         security.get_subject_for_token_type(token, "access")
         assert "Token has expired" == exe_info.value.detail
 
+
 def test_get_subject_for_token_type_invalid_token(mocker):
     token = "Invalid token"
-    with  pytest.raises(security.HTTPException) as exe_info:
+    with pytest.raises(security.HTTPException) as exe_info:
         security.get_subject_for_token_type(token, "access")
         assert "Invalid token" == exe_info.value.detail
+
 
 def test_get_subject_for_token__type_missing_sub():
     email = "test@example.com"
