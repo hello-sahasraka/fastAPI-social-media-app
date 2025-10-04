@@ -24,6 +24,9 @@ class GlobalConfig(BaseSettings):
     SECRET_KEY: Optional[str] = None
     MAILGUN_API_KEY: str
     MAILGUN_DOMAIN: str
+    B2_KEY_ID: Optional[str] = None
+    B2_APPLICATION_KEY: Optional[str] = None
+    B2_BUCKET_NAME: Optional[str] = None
 
     model_config = SettingsConfigDict(
         env_file=".env",
