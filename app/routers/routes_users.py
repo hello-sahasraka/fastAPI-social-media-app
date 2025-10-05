@@ -39,8 +39,10 @@ async def create_user(user: UserIn, background_task: BackgroundTasks, request: R
 
     background_task.add_task(
         tasks.send_user_registration_email,
-        email = user.email,
-        confirmation_url = request.url_for("confirm_user", token=create_confirmation_token(user.email)),
+        email=user.email,
+        confirmation_url=request.url_for(
+            "confirm_user", token=create_confirmation_token(user.email)
+        ),
     )
 
     return {"detail": "User Created succesfully!, Please confirm your email"}

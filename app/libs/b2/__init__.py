@@ -7,6 +7,7 @@ from app.config import config
 
 logger = logging.getLogger(__name__)
 
+
 @lru_cache()
 def b2_api():
     info = b2.InMemoryAccountInfo()
@@ -16,12 +17,14 @@ def b2_api():
 
     return b2_api
 
+
 @lru_cache()
 def b2_get_bucket(api: b2.B2Api):
     logger.debug("Creating and authorizing B2 API")
     return api.get_bucket_by_name(config.B2_BUCKET_NAME)
 
-def b2_upload_file(local_file: str, file_name:str) -> str:
+
+def b2_upload_file(local_file: str, file_name: str) -> str:
     api = b2_api()
     logger.debug(f"Uploading {local_file} to B2 as {file_name}")
 
@@ -30,6 +33,8 @@ def b2_upload_file(local_file: str, file_name:str) -> str:
     )
 
     download_url = api.get_download_url_for_fileid(uploaded_file.id_)
-    logger.debug(f"Uploaded  {local_file} to B2 successfully and got download url {download_url}")
+    logger.debug(
+        f"Uploaded  {local_file} to B2 successfully and got download url {download_url}"
+    )
 
     return download_url

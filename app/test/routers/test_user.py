@@ -3,7 +3,6 @@ from httpx import AsyncClient
 from fastapi import BackgroundTasks
 
 
-
 async def create_user(async_client: AsyncClient, name: str, email: str, password: str):
     return await async_client.post(
         "/user/", json={"name": name, "email": email, "password": password}
