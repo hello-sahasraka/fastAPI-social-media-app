@@ -6,6 +6,7 @@ from fastapi.exception_handlers import http_exception_handler
 from app.database import database
 from app.routers.routes_posts import router as posts_router
 from app.routers.routes_users import router as users_router
+from app.routers.routes_upload import router as upload_router
 from app.logging_conf import configure_logging
 
 
@@ -26,6 +27,7 @@ app.add_middleware(CorrelationIdMiddleware)
 
 app.include_router(posts_router)
 app.include_router(users_router)
+app.include_router(upload_router)
 
 
 @app.exception_handler(HTTPException)

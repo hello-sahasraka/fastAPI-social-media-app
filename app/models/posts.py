@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict
+from typing import Optional
 
 
 class PostsIn(BaseModel):
@@ -8,6 +9,7 @@ class PostsIn(BaseModel):
 class PostsOut(PostsIn):
     id: int
     user_id: int
+    image_url: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 
