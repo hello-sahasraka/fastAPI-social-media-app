@@ -3,50 +3,11 @@ import pytest
 from httpx import AsyncClient
 from app import security
 
+from app.test.helpers import create_post, create_comment, create_like
 
 class PostSchema(BaseModel):
     body: str
     id: int
-
-
-async def create_post(
-    body: str, async_client: AsyncClient, logged_in_token: str
-) -> dict:
-    response = await async_client.post(
-        "/post/",
-        json={"body": body},
-        headers={"Authorization": f"Bearer {logged_in_token}"},
-    )
-    return response.json()
-
-
-async def create_comment(
-    body: str, post_id: int, async_client: AsyncClient, logged_in_token: str
-) -> dict:
-    response = await async_client.post(
-        "/post/comment",
-        json={"body": body, "post_id": post_id},
-        headers={"Authorization": f"Bearer {logged_in_token}"},
-    )
-    return response.json()
-
-
-async def create_like(
-    post_id: int, async_client: AsyncClient, logged_in_token: str
-) -> dict:
-    response = await async_client.post(
-        "/post/like",
-        json={"post_id": post_id},
-        headers={"Authorization": f"Bearer {logged_in_token}"},
-    )
-
-    return response.json()
-
-
-@pytest.fixture()
-async def created_post(async_client: AsyncClient, logged_in_token: str):
-    post = await create_post("Test post", async_client, logged_in_token)
-    return {**post, "likes": 0}
 
 
 @pytest.fixture()

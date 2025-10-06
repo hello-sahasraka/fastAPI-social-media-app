@@ -99,7 +99,7 @@ async def generate_and_add_to_post(
 
     query = (
         post_table.update()
-        .where( post_id.c.id == post_id)
+        .where( post_table.c.id == post_id)
         .values(image_url = response["output_url"])
     )
 

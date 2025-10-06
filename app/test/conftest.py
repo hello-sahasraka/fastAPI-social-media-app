@@ -5,6 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient, Request, Response
 from app.database import database, user_table
+from app.test.helpers import create_post
 
 os.environ["ENV_STATE"] = "test"
 
@@ -25,7 +26,7 @@ def client() -> Generator:
 async def db() -> AsyncGenerator:
     await database.connect()
     async with database.transaction(force_rollback=True):
-        yield
+        yield database
     await database.disconnect()
 
 
@@ -76,3 +77,8 @@ def mock_httpx_client(mocker):
     mocked_client.return_value.__aenter__.return_value = mocked_async_client
 
     return mocked_async_client
+
+@pytest.fixture()
+async def created_post(async_client: AsyncClient, logged_in_token: str):
+    post = await create_post("Test post", async_client, logged_in_token)
+    return {**post, "likes": 0}
