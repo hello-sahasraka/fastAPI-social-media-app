@@ -11,6 +11,14 @@ class PostSchema(BaseModel):
 
 
 @pytest.fixture()
+def mock_generate_cute_creature_api(mocker):
+    return mocker.patch(
+        "app.tasks._generate_cute_creature_api",
+        return_value={"output_url": "https://example.com/image.jpg"},
+    ) 
+
+
+@pytest.fixture()
 async def created_comment(
     async_client: AsyncClient, created_post: dict, logged_in_token: str
 ):
@@ -42,6 +50,28 @@ async def test_create_post(
         "user_id": confirm_user["id"],
         "image_url": None,
     }.items() <= response.json().items()
+
+
+@pytest.mark.anyio
+async def test_create_post_with_prompt(
+    async_client: AsyncClient, logged_in_token: str, mock_generate_cute_creature_api
+):
+    body = "Test post"
+
+    response = await async_client.post(
+        "/post/?prompt=A cat",
+        json={"body": body},
+        headers={"Authorization": f"Bearer {logged_in_token}"},
+    ) 
+
+    assert response.status_code == 201
+    assert {
+        "id": 1,
+        "body": body,
+        "image_url": None,
+    }.items() <= response.json().items()
+    mock_generate_cute_creature_api.assert_called()
+
 
 
 @pytest.mark.anyio
