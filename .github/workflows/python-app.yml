@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ENV_STATE: test
+      ENV_STATE: dev
 
     steps:
     - uses: actions/checkout@v4
