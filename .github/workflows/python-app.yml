@@ -17,6 +17,7 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
+      ENV_STATE: test 
       MAILGUN_API_KEY: test_key
       MAILGUN_DOMAIN: test_domain
 
