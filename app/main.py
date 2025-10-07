@@ -1,4 +1,5 @@
 import logging
+import sentry_sdk
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from asgi_correlation_id import CorrelationIdMiddleware
@@ -8,6 +9,7 @@ from app.routers.routes_posts import router as posts_router
 from app.routers.routes_users import router as users_router
 from app.routers.routes_upload import router as upload_router
 from app.logging_conf import configure_logging
+from app.config import config
 
 
 logger = logging.getLogger("app")
@@ -20,6 +22,14 @@ async def lifespan(app: FastAPI):
     await database.connect()
     yield
     await database.disconnect()
+
+
+sentry_sdk.init(
+    dsn=config.SENTRY_DNS,
+    # Add data like request headers and IP for users,
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
+)
 
 
 app = FastAPI(lifespan=lifespan)

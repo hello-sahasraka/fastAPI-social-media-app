@@ -28,6 +28,7 @@ class GlobalConfig(BaseSettings):
     B2_APPLICATION_KEY: Optional[str] = None
     B2_BUCKET_NAME: Optional[str] = None
     DEEPAI_API_KEY: Optional[str] = None
+    SENTRY_DNS: Optional[str] = None
 
     model_config = SettingsConfigDict(
         env_file=".env",
