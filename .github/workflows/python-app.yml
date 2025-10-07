@@ -16,6 +16,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    env:
+      MAILGUN_API_KEY: test_key
+      MAILGUN_DOMAIN: test_domain
 
     steps:
     - uses: actions/checkout@v4
