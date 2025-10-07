@@ -1,7 +1,7 @@
 import logging
 import sqlalchemy
 from enum import Enum
-from fastapi import APIRouter, HTTPException, status, Depends, BackgroundTasks, Request 
+from fastapi import APIRouter, HTTPException, status, Depends, BackgroundTasks, Request
 from app.database import post_table, comments_table, likes_table, database
 from app.models.posts import (
     PostsIn,
@@ -43,7 +43,11 @@ async def findPost(post_id: int):
 
 @router.post("/", response_model=PostsOut, status_code=status.HTTP_201_CREATED)
 async def create_post(
-    post: PostsIn, current_user: Annotated[UserIn, Depends(get_current_user)], background_task: BackgroundTasks, request: Request, prompt: str = None
+    post: PostsIn,
+    current_user: Annotated[UserIn, Depends(get_current_user)],
+    background_task: BackgroundTasks,
+    request: Request,
+    prompt: str = None,
 ):
     logger.info("Creating a new post")
     data = {**post.model_dump(), "user_id": current_user.id}
@@ -56,9 +60,9 @@ async def create_post(
             generate_and_add_to_post,
             current_user.email,
             last_record_id,
-            request.url_for("get_post_with_comments", post_id = last_record_id),
+            request.url_for("get_post_with_comments", post_id=last_record_id),
             database,
-            prompt
+            prompt,
         )
 
     return {**data, "id": last_record_id}

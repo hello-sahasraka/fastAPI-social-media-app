@@ -55,7 +55,7 @@ async def send_user_registration_email(email: str, confirmation_url: str):
 async def _generate_cute_creature_api(prompt: str):
     logger.debug("Generating cute creature")
     async with httpx.AsyncClient() as client:
-        try :
+        try:
             response = await client.post(
                 "https://api.deepai.org/api/cute-creature-generator",
                 data={"text": prompt},
@@ -70,16 +70,15 @@ async def _generate_cute_creature_api(prompt: str):
                 f"API request failed with status code {err.response.status_code}"
             ) from err
         except (JSONDecodeError, TypeError) as err:
-            raise APIResponseError(
-                "API response passing failed"
-            ) from err
-        
+            raise APIResponseError("API response passing failed") from err
+
+
 async def generate_and_add_to_post(
-        email: str,
-        post_id: int,
-        post_url: str,
-        database: Database,
-        prompt: str = "A blue british shorthair cat is sitting on a couch"
+    email: str,
+    post_id: int,
+    post_url: str,
+    database: Database,
+    prompt: str = "A blue british shorthair cat is sitting on a couch",
 ):
     try:
         response = await _generate_cute_creature_api(prompt)
@@ -93,14 +92,14 @@ async def generate_and_add_to_post(
             (
                 f"Hi {email}! Unfortunatly there was an error generating an image"
                 " for your post."
-            )
+            ),
         )
     logger.debug("Connecting to database to update post")
 
     query = (
         post_table.update()
-        .where( post_table.c.id == post_id)
-        .values(image_url = response["output_url"])
+        .where(post_table.c.id == post_id)
+        .values(image_url=response["output_url"])
     )
 
     logger.debug(query)
@@ -110,11 +109,11 @@ async def generate_and_add_to_post(
     logger.debug("Database connection in background task closed")
 
     await send_simple_email(
-            email,
-            "Image generation completed",
-            (
-                f"Hi {email}! Your image has been generated and added to your post."
-                f"please click on the following link to view it: {post_url}"
-            )
-        )
+        email,
+        "Image generation completed",
+        (
+            f"Hi {email}! Your image has been generated and added to your post."
+            f"please click on the following link to view it: {post_url}"
+        ),
+    )
     return response

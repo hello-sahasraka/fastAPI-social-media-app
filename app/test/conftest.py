@@ -78,6 +78,7 @@ def mock_httpx_client(mocker):
 
     return mocked_async_client
 
+
 @pytest.fixture()
 async def created_post(async_client: AsyncClient, logged_in_token: str):
     post = await create_post("Test post", async_client, logged_in_token)

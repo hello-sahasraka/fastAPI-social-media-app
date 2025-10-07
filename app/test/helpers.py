@@ -1,5 +1,6 @@
 from httpx import AsyncClient
 
+
 async def create_post(
     body: str, async_client: AsyncClient, logged_in_token: str
 ) -> dict:

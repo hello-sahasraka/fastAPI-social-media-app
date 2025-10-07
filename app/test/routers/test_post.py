@@ -5,6 +5,7 @@ from app import security
 
 from app.test.helpers import create_post, create_comment, create_like
 
+
 class PostSchema(BaseModel):
     body: str
     id: int
@@ -15,7 +16,7 @@ def mock_generate_cute_creature_api(mocker):
     return mocker.patch(
         "app.tasks._generate_cute_creature_api",
         return_value={"output_url": "https://example.com/image.jpg"},
-    ) 
+    )
 
 
 @pytest.fixture()
@@ -62,7 +63,7 @@ async def test_create_post_with_prompt(
         "/post/?prompt=A cat",
         json={"body": body},
         headers={"Authorization": f"Bearer {logged_in_token}"},
-    ) 
+    )
 
     assert response.status_code == 201
     assert {
@@ -71,7 +72,6 @@ async def test_create_post_with_prompt(
         "image_url": None,
     }.items() <= response.json().items()
     mock_generate_cute_creature_api.assert_called()
-
 
 
 @pytest.mark.anyio
