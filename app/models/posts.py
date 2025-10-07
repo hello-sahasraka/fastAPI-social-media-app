@@ -7,10 +7,11 @@ class PostsIn(BaseModel):
 
 
 class PostsOut(PostsIn):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     user_id: int
     image_url: Optional[str] = None
-    model_config = ConfigDict(from_attributes=True)
 
 
 class CommentsIn(BaseModel):
@@ -19,9 +20,10 @@ class CommentsIn(BaseModel):
 
 
 class CommentsOut(CommentsIn):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     user_id: int
-    model_config = ConfigDict(from_attributes=True)
 
 
 class UserPostsWithLikes(PostsOut):

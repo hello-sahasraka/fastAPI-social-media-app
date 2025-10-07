@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+.pytest_cache
 
 # Virtual environment
 .venv/
@@ -34,3 +35,6 @@ build/
 
 # Requirements lock files (if auto-generated)
 pip-wheel-metadata/
+
+#Databases
+*.db

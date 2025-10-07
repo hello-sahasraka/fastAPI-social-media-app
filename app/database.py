@@ -49,8 +49,9 @@ engine = sqlalchemy.create_engine(
 )
 
 # Create tables synchronously
-metadata.drop_all(engine)
+# metadata.drop_all(engine)
 metadata.create_all(engine)
 
 # Async database instance
+# db_args = {"min_size": 1, "max_size": 3} if sync_url.startswith("postgres") else {},
 database = databases.Database(config.DATABASE_URL)
