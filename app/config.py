@@ -19,7 +19,7 @@ class BaseClass(BaseSettings):
 # Global config for DB and flags
 # -----------------------------
 class GlobalConfig(BaseSettings):
-    DATABASE_URL: Optional[str] = "sqlite+aiosqlite:///./dev.db"
+    DATABASE_URL: Optional[str] = None
     BD_FORCE_RELOAD: bool = False
     SECRET_KEY: Optional[str] = None
     MAILGUN_API_KEY: Optional[str] = "test key"
