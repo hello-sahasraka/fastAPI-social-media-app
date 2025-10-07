@@ -22,8 +22,8 @@ class GlobalConfig(BaseSettings):
     DATABASE_URL: Optional[str] = None
     BD_FORCE_RELOAD: bool = False
     SECRET_KEY: Optional[str] = None
-    MAILGUN_API_KEY: str
-    MAILGUN_DOMAIN: str
+    MAILGUN_API_KEY: Optional[str] = "test key"
+    MAILGUN_DOMAIN: Optional[str] = "test domain"
     B2_KEY_ID: Optional[str] = None
     B2_APPLICATION_KEY: Optional[str] = None
     B2_BUCKET_NAME: Optional[str] = None
